@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forth Insurance – License &amp; CE Tracker</title>
+<style>
+:root{
+  --navy:#13304f;--navy2:#1c4672;--teal:#0e8a8c;--teal-soft:#e3f4f4;
+  --bg:#f3f5f8;--card:#ffffff;--text:#1d2733;--muted:#677485;--line:#e2e7ee;
+  --red:#b83227;--red-soft:#fbe9e7;--amber:#a86a0c;--amber-soft:#fdf3e1;
+  --green:#2c7a51;--green-soft:#e5f4ec;--blue-soft:#e8eef8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.45}
+button,input,select{font:inherit}
+h1{font-size:24px;margin:0 0 4px}
+h2{font-size:16px;margin:0 0 12px}
+.muted{color:var(--muted)}
+small{font-size:12px}
+
+/* Login */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 55%,var(--teal) 140%)}
+.login{background:#fff;border-radius:14px;max-width:420px;width:100%;padding:32px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.logo{width:38px;height:38px;border-radius:9px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px}
+.brand b{font-size:18px;color:var(--navy)}
+.login p{margin:4px 0 20px}
+.demo-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.demo-row button{padding:10px 6px;border:1px solid var(--line);background:#f8fafc;border-radius:8px;cursor:pointer;font-size:13px}
+.demo-row button:hover{border-color:var(--teal);background:var(--teal-soft)}
+.demo-row b{display:block;color:var(--navy)}
+.divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:20px 0 4px}
+.divider:before,.divider:after{content:"";flex:1;height:1px;background:var(--line)}
+.err{color:var(--red);font-size:13px;min-height:18px;margin-top:6px}
+
+/* Shell */
+.shell{display:flex;min-height:100vh}
+aside{width:236px;background:var(--navy);color:#cfdbe8;flex-shrink:0;display:flex;flex-direction:column}
+aside .brand{padding:20px 18px 18px;margin:0;border-bottom:1px solid rgba(255,255,255,.08)}
+aside .brand b{color:#fff;font-size:15px;line-height:1.2}
+aside .brand span{display:block;font-size:11px;color:#9fb3c8;font-weight:500}
+nav{padding:12px 10px;flex:1}
+nav button{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;background:none;border:0;color:#cfdbe8;padding:10px 12px;border-radius:8px;cursor:pointer;margin-bottom:2px}
+nav button:hover{background:rgba(255,255,255,.07);color:#fff}
+nav button.on{background:var(--teal);color:#fff;font-weight:600}
+.count{background:#e2574c;color:#fff;border-radius:10px;font-size:11px;padding:1px 7px;font-weight:700}
+.side-foot{padding:14px 18px;font-size:12px;color:#8ea4ba;border-top:1px solid rgba(255,255,255,.08)}
+.side-foot button{background:none;border:0;color:#b9cadb;text-decoration:underline;cursor:pointer;padding:0;font-size:12px}
+main{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{background:#fff;border-bottom:1px solid var(--line);padding:12px 28px;display:flex;justify-content:flex-end;align-items:center;gap:14px}
+.who{display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--blue-soft);color:var(--navy);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px}
+.who div{line-height:1.2}
+.who small{color:var(--muted)}
+.content{padding:26px 28px 40px;max-width:1240px;width:100%}
+.menu-btn{display:none}
+
+/* Components */
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:#fff;color:var(--navy);padding:9px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px}
+.btn:hover{border-color:var(--navy2)}
+.btn.primary{background:var(--teal);border-color:var(--teal);color:#fff}
+.btn.primary:hover{background:#0b7577}
+.btn.danger{color:var(--red)}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn.full{width:100%;padding:11px}
+.link{color:var(--teal);cursor:pointer;font-weight:600;font-size:13px;background:none;border:0;padding:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:18px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.stat .label{color:var(--muted);font-size:13px}
+.stat .value{font-size:26px;font-weight:750;color:var(--navy);margin:2px 0}
+.stat.warn .value{color:var(--amber)}
+.stat.bad .value{color:var(--red)}
+.stat.ok .value{color:var(--green)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:18px;min-width:0}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.card-head h2{margin:0}
+.grid2{display:grid;grid-template-columns:1.6fr 1fr;gap:18px}
+.grid2 > .card{margin-bottom:0}
+.grid2{margin-bottom:18px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap}
+.b-green{background:var(--green-soft);color:var(--green)}
+.b-amber{background:var(--amber-soft);color:var(--amber)}
+.b-red{background:var(--red-soft);color:var(--red)}
+.b-blue{background:var(--blue-soft);color:var(--navy2)}
+.b-gray{background:#eef1f4;color:#55616f}
+.prog{height:7px;background:#e8ecf1;border-radius:5px;overflow:hidden;width:110px;margin-bottom:3px}
+.prog span{display:block;height:100%;background:var(--teal);border-radius:5px}
+.prog.full span{background:var(--green)}
+.alerts{list-style:none;margin:0;padding:0}
+.alerts li{display:flex;gap:10px;padding:10px 12px;border-radius:9px;margin-bottom:8px;font-size:14px}
+.alerts li:before{content:"";width:8px;height:8px;border-radius:50%;margin-top:6px;flex-shrink:0}
+.a-red{background:var(--red-soft)} .a-red:before{background:var(--red)}
+.a-amber{background:var(--amber-soft)} .a-amber:before{background:var(--amber)}
+.a-blue{background:var(--blue-soft)} .a-blue:before{background:var(--navy2)}
+.empty{color:var(--muted);font-size:14px;padding:10px 0}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.form .full{grid-column:1/-1}
+label{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:#3d4957}
+input,select{border:1px solid #cdd5df;border-radius:8px;padding:9px 11px;font-weight:400;color:var(--text);background:#fff;width:100%}
+input:focus,select:focus{outline:2px solid rgba(14,138,140,.25);border-color:var(--teal)}
+input[type=file]{padding:7px}
+.help{font-weight:400;color:var(--muted);font-size:12px}
+.form-msg{grid-column:1/-1;font-size:13px;min-height:0}
+.form-msg.bad{color:var(--red)}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.filters input,.filters select{width:auto;min-width:160px}
+.bars .row{display:grid;grid-template-columns:130px 1fr 110px;gap:10px;align-items:center;margin-bottom:9px;font-size:13px}
+.bar{height:10px;background:#e8ecf1;border-radius:6px;overflow:hidden}
+.bar span{display:block;height:100%;background:var(--navy2)}
+.bar span.hi{background:var(--amber)}
+.bar span.over{background:var(--red)}
+.msg{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.msg.unread{border-left:4px solid var(--teal)}
+.msg pre{white-space:pre-wrap;font-family:inherit;margin:8px 0 0;font-size:14px}
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.note{background:var(--blue-soft);border-radius:10px;padding:12px 14px;font-size:13px;color:#2b3f57;margin-bottom:16px}
+
+/* Modal + toast */
+.overlay{position:fixed;inset:0;background:rgba(15,28,45,.45);display:flex;align-items:flex-start;justify-content:center;padding:50px 16px;z-index:50;overflow-y:auto}
+.modal{background:#fff;border-radius:14px;max-width:760px;width:100%;padding:22px 24px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modal-head h2{margin:0;font-size:18px}
+.x{background:none;border:0;font-size:22px;cursor:pointer;color:var(--muted)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 18px;border-radius:9px;font-size:14px;z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:90vw}
+textarea.csv{width:100%;height:160px;font-family:ui-monospace,Consolas,monospace;font-size:12px;border:1px solid #cdd5df;border-radius:8px;padding:8px}
+
+@media (max-width:900px){
+  .grid2{grid-template-columns:1fr}
+  aside{position:fixed;left:-250px;top:0;bottom:0;z-index:40;transition:left .2s}
+  aside.open{left:0}
+  .menu-btn{display:block;margin-right:auto}
+  .content{padding:20px 16px 40px}
+  .form{grid-template-columns:1fr}
+  .bars .row{grid-template-columns:100px 1fr 90px}
+}
+@media print{
+  aside,.top,.no-print{display:none!important}
+  .content{padding:0}
+  .card{border:0}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal-root"></div>
+<script>
+/* =========================================================
+   Forth Insurance – License & CE Tracker (prototype)
+   Table and field names follow the project's ERD / data dictionary:
+   EMPLOYEE, USER_ACCOUNT, LICENSE, STATE, PROFESSIONAL_DEVELOPMENT, BUDGET
+   Data is demo data, kept in this browser only.
+   ========================================================= */
+var STORE_KEY = 'forth-tracker-v1';
+var ALLOCATION = 2000;
+var DEFAULT_CE = 24; // sample hours per renewal cycle – verify with each state's Department of Insurance
+var LICENSE_TYPES = ['Property & Casualty','Life & Health','Personal Lines','General Lines (P&C)','Adjuster'];
+
+function iso(off){var x=new Date();x.setHours(12,0,0,0);x.setDate(x.getDate()+off);return x.toISOString().slice(0,10);}
+function todayIso(){return iso(0);}
+
+function seed(){
+  var states=[
+    {State_ID:1,State_Name:'Louisiana',State_Abbreviation:'LA'},
+    {State_ID:2,State_Name:'Texas',State_Abbreviation:'TX'},
+    {State_ID:3,State_Name:'Mississippi',State_Abbreviation:'MS'},
+    {State_ID:4,State_Name:'Alabama',State_Abbreviation:'AL'},
+    {State_ID:5,State_Name:'Florida',State_Abbreviation:'FL'}];
+  var employees=[
+    {Emp_ID:101,First_Name:'Jordan',Last_Name:'Miller',Email:'jmiller@forth-demo.com',Phone_Num:'318-555-0101',Emp_Role:'Broker'},
+    {Emp_ID:102,First_Name:'Ava',Last_Name:'Thompson',Email:'athompson@forth-demo.com',Phone_Num:'318-555-0102',Emp_Role:'Broker'},
+    {Emp_ID:103,First_Name:'Marcus',Last_Name:'Reed',Email:'mreed@forth-demo.com',Phone_Num:'318-555-0103',Emp_Role:'Broker'},
+    {Emp_ID:104,First_Name:'Sophia',Last_Name:'Nguyen',Email:'snguyen@forth-demo.com',Phone_Num:'318-555-0104',Emp_Role:'Broker'},
+    {Emp_ID:105,First_Name:'Ethan',Last_Name:'Brooks',Email:'ebrooks@forth-demo.com',Phone_Num:'318-555-0105',Emp_Role:'Broker'},
+    {Emp_ID:201,First_Name:'Olivia',Last_Name:'Carter',Email:'ocarter@forth-demo.com',Phone_Num:'318-555-0201',Emp_Role:'Marketing'},
+    {Emp_ID:202,First_Name:'Liam',Last_Name:'Foster',Email:'lfoster@forth-demo.com',Phone_Num:'318-555-0202',Emp_Role:'Marketing'},
+    {Emp_ID:301,First_Name:'Rachel',Last_Name:'Dupree',Email:'rdupree@forth-demo.com',Phone_Num:'318-555-0301',Emp_Role:'Manager'}];
+  var accounts=[
+    {User_ID:1,Emp_ID:101,Username:'broker',Password:'demo',Account_Status:'Active',Date_Created:iso(-400)},
+    {User_ID:2,Emp_ID:201,Username:'marketing',Password:'demo',Account_Status:'Active',Date_Created:iso(-380)},
+    {User_ID:3,Emp_ID:301,Username:'manager',Password:'demo',Account_Status:'Active',Date_Created:iso(-500)}];
+  employees.forEach(function(e,i){
+    accounts.push({User_ID:10+i,Emp_ID:e.Emp_ID,Username:(e.First_Name[0]+e.Last_Name).toLowerCase(),Password:'demo',Account_Status:'Active',Date_Created:iso(-300)});
+  });
+  function L(id,emp,st,num,type,issue,exp,doc){return {License_ID:id,Emp_ID:emp,State_ID:st,License_Num:num,License_Type:type,Issue_Date:iso(issue),Expiration_Date:iso(exp),CE_Required:DEFAULT_CE,Doc_Name:doc||''};}
+  var licenses=[
+    L(1,101,1,'LA-784512','Property & Casualty',-330,400,'miller_LA_license.pdf'),
+    L(2,101,2,'TX-2290147','Property & Casualty',-685,45,'miller_TX_license.pdf'),
+    L(3,102,1,'LA-693021','Life & Health',-530,200,'thompson_LA_license.pdf'),
+    L(4,102,3,'MS-10458832','Property & Casualty',-740,-10,''),
+    L(5,103,1,'LA-512876','Property & Casualty',-700,30,'reed_LA_license.pdf'),
+    L(6,103,5,'FL-W118842','General Lines (P&C)',-230,500,'reed_FL_license.pdf'),
+    L(7,104,4,'AL-3301928','Property & Casualty',-640,90,'nguyen_AL_license.jpg'),
+    L(8,105,1,'LA-845533','Life & Health',-430,300,''),
+    L(9,201,1,'LA-901276','Property & Casualty',-580,150,'carter_LA_license.pdf'),
+    L(10,202,2,'TX-3018845','Life & Health',-675,55,'foster_TX_license.pdf')];
+  function P(id,emp,lic,name,prov,hrs,date,cost,status,proof){return {Activity_Id:id,Emp_Id:emp,License_ID:lic,course_name:name,course_provider:prov,CE_Hours:hrs,Completion_Date:iso(date),Completion_Status:status||'Completed',Activity_Cost:cost,Proof_Name:proof===undefined?'certificate.pdf':proof};}
+  var pd=[
+    P(1,101,1,'Insurance Ethics & Professional Conduct','Bayou Insurance Academy',3,-120,150),
+    P(2,101,2,'Texas Homeowners Policy Update','Gulf South CE Institute',8,-60,400),
+    P(3,101,1,'Flood Insurance & the NFIP','Online CE Center',4,-25,200),
+    P(4,102,3,'Life Insurance Products Review','Gulf South CE Institute',10,-200,600),
+    P(5,102,3,'Annuity Suitability & Best Interest','Online CE Center',4,-90,250),
+    P(6,102,4,'Medicare Supplement Basics','Bayou Insurance Academy',6,-150,500),
+    P(7,103,5,'Commercial Lines Coverage Workshop','Southern Risk Institute',16,-180,1200),
+    P(8,103,6,'Florida Law & Ethics Update','Gulf South CE Institute',5,-40,450),
+    P(9,104,7,'Alabama P&C Regulatory Update','Online CE Center',6,-30,300),
+    P(10,105,8,'Health Insurance Fundamentals','Bayou Insurance Academy',8,-70,350),
+    P(11,201,9,'Compliance in Insurance Marketing','Bayou Insurance Academy',4,-50,0),
+    P(12,202,10,'Life & Health Basics for Support Staff','Online CE Center',6,-20,0),
+    P(13,103,6,'Advanced Commercial Risk Management','Southern Risk Institute',8,-3,500,'Pending Approval','')];
+  var messages=[
+    {Msg_ID:1,Emp_ID:301,Date:iso(-3),From:'Forth Tracker',Subject:'Budget approval needed: Marcus Reed',Body:'Marcus Reed submitted "Advanced Commercial Risk Management" ($500.00), which is more than his remaining professional development budget ($350.00). Review it under Approvals.',Read:false}];
+  return {states:states,employees:employees,accounts:accounts,licenses:licenses,pd:pd,messages:messages};
+}
+
+var db=null;
+try{var raw=localStorage.getItem(STORE_KEY);if(raw)db=JSON.parse(raw);}catch(e){db=null;}
+if(!db||!db.employees)db=seed();
+function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify(db));}catch(e){}}
+
+var session={user:null,page:''};
+var reportData=null;
+
+/* ---------- helpers ---------- */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function money(n){return '$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtDate(s){if(!s)return '';var d=new Date(s+'T12:00:00');return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function daysUntil(s){var t=new Date();t.setHours(12,0,0,0);return Math.round((new Date(s+'T12:00:00')-t)/86400000);}
+function nid(arr,key){return arr.reduce(function(m,x){return Math.max(m,x[key]);},0)+1;}
+function emp(id){return db.employees.find(function(e){return e.Emp_ID===id;});}
+function fullName(e){return e?e.First_Name+' '+e.Last_Name:'';}
+function stateOf(id){return db.states.find(function(s){return s.State_ID===id;})||{};}
+function licOf(id){return db.licenses.find(function(l){return l.License_ID===id;});}
+function licensesOf(empId){return db.licenses.filter(function(l){return l.Emp_ID===empId;});}
+function pdOf(empId){return db.pd.filter(function(p){return p.Emp_Id===empId;});}
+function isBroker(e){return e&&e.Emp_Role==='Broker';}
+function staff(){return db.employees.filter(function(e){return e.Emp_Role!=='Manager';});}
+function manager(){return db.employees.find(function(e){return e.Emp_Role==='Manager';});}
+function ceDone(l){return db.pd.filter(function(p){return p.License_ID===l.License_ID&&p.Completion_Status==='Completed';}).reduce(function(s,p){return s+Number(p.CE_Hours);},0);}
+function ceRemaining(l){return Math.max(0,Number(l.CE_Required)-ceDone(l));}
+function empRemaining(id){return licensesOf(id).reduce(function(s,l){return s+ceRemaining(l);},0);}
+function empDone(id){return licensesOf(id).reduce(function(s,l){return s+ceDone(l);},0);}
+function budgetOf(id){
+  var e=emp(id);if(!isBroker(e))return null;
+  var spent=pdOf(id).filter(function(p){return p.Completion_Status==='Completed';}).reduce(function(s,p){return s+Number(p.Activity_Cost);},0);
+  var pending=pdOf(id).filter(function(p){return p.Completion_Status==='Pending Approval';}).reduce(function(s,p){return s+Number(p.Activity_Cost);},0);
+  return {allocated:ALLOCATION,spent:spent,remaining:Math.max(0,ALLOCATION-spent),over:Math.max(0,spent-ALLOCATION),pending:pending};
+}
+function licStatus(l){var d=daysUntil(l.Expiration_Date);if(d<0)return ['Expired','b-red'];if(d<=60)return ['Expiring soon','b-amber'];return ['Active','b-green'];}
+function statusBadge(s){var m={'Completed':'b-green','Pending Approval':'b-amber','Denied':'b-red'};return '<span class="badge '+(m[s]||'b-gray')+'">'+esc(s)+'</span>';}
+function pct(a,b){return b?Math.min(100,Math.round(a/b*100)):0;}
+function initials(e){return (e.First_Name[0]+e.Last_Name[0]).toUpperCase();}
+
+function alertsFor(e){
+  var out=[];
+  licensesOf(e.Emp_ID).forEach(function(l){
+    var st=stateOf(l.State_ID).State_Abbreviation,d=daysUntil(l.Expiration_Date),rem=ceRemaining(l);
+    if(d<0)out.push({lvl:'red',text:st+' license #'+l.License_Num+' expired on '+fmtDate(l.Expiration_Date)+'. You cannot sell to '+st+' clients until it is renewed.'});
+    else if(d<=60)out.push({lvl:'amber',text:st+' license #'+l.License_Num+' expires in '+d+' day'+(d===1?'':'s')+' ('+fmtDate(l.Expiration_Date)+').'});
+    if(rem>0&&d>=0&&d<=180)out.push({lvl:d<=60?'red':'amber',text:rem+' CE hour'+(rem===1?'':'s')+' still needed for your '+st+' license before '+fmtDate(l.Expiration_Date)+'.'});
+    if(!l.Doc_Name)out.push({lvl:'blue',text:'No copy of your '+st+' license is on file. Please upload it.'});
+  });
+  var b=budgetOf(e.Emp_ID);
+  if(b&&b.spent>=ALLOCATION*0.8)out.push({lvl:'amber',text:'You have used '+pct(b.spent,ALLOCATION)+'% of your $2,000 professional development budget ('+money(b.remaining)+' left).'});
+  pdOf(e.Emp_ID).filter(function(p){return p.Completion_Status==='Pending Approval';}).forEach(function(p){
+    out.push({lvl:'blue',text:'"'+p.course_name+'" ('+money(p.Activity_Cost)+') is over your remaining budget and is waiting for manager approval.'});
+  });
+  var order={red:0,amber:1,blue:2};
+  return out.sort(function(a,b){return order[a.lvl]-order[b.lvl];});
+}
+function managerAlerts(){
+  var out=[];
+  var pend=db.pd.filter(function(p){return p.Completion_Status==='Pending Approval';});
+  if(pend.length)out.push({lvl:'amber',text:pend.length+' professional development request'+(pend.length>1?'s are':' is')+' over budget and waiting for your approval.'});
+  staff().forEach(function(e){
+    alertsFor(e).filter(function(a){return a.lvl!=='blue';}).forEach(function(a){
+      out.push({lvl:a.lvl,text:'<b>'+esc(fullName(e))+'</b>: '+esc(a.text.replace(/^You have/,'Has').replace(/your /g,'their ').replace(/You /g,'They '))});
+    });
+  });
+  var order={red:0,amber:1,blue:2};
+  return out.sort(function(a,b){return order[a.lvl]-order[b.lvl];});
+}
+function unreadCount(id){return db.messages.filter(function(m){return m.Emp_ID===id&&!m.Read;}).length;}
+
+/* ---------- UI primitives ---------- */
+function toast(t){var el=document.createElement('div');el.className='toast';el.textContent=t;document.body.appendChild(el);setTimeout(function(){el.remove();},3200);}
+function openModal(title,html){document.getElementById('modal-root').innerHTML='<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-head"><h2>'+esc(title)+'</h2><button class="x" onclick="closeModal()" aria-label="Close">&times;</button></div>'+html+'</div></div>';}
+function closeModal(){document.getElementById('modal-root').innerHTML='';}
+function stat(label,value,sub,cls){return '<div class="stat '+(cls||'')+'"><div class="label">'+esc(label)+'</div><div class="value">'+value+'</div><small class="muted">'+esc(sub||'')+'</small></div>';}
+function alertList(list,raw){
+  if(!list.length)return '<p class="empty">No alerts. Everything is up to date.</p>';
+  return '<ul class="alerts">'+list.map(function(a){return '<li class="a-'+a.lvl+'"><span>'+(raw?a.text:esc(a.text))+'</span></li>';}).join('')+'</ul>';
+}
+function progress(done,req){var p=pct(done,req);return '<div class="prog'+(p>=100?' full':'')+'"><span style="width:'+p+'%"></span></div><small class="muted">'+done+' / '+req+' hrs</small>';}
+
+function licenseTable(list,opts){
+  opts=opts||{};
+  if(!list.length)return '<p class="empty">No licenses on file yet.</p>';
+  return '<div class="table-wrap"><table><thead><tr>'+(opts.emp?'<th>Employee</th>':'')+'<th>State</th><th>License #</th><th>Type</th><th>Expires</th><th>Status</th><th>CE progress</th><th>Copy of license</th></tr></thead><tbody>'+
+    list.map(function(l){
+      var s=licStatus(l),st=stateOf(l.State_ID);
+      var doc=l.Doc_Name?'<span class="badge b-blue" title="'+esc(l.Doc_Name)+'">On file</span>':'<span class="badge b-gray">Missing</span>';
+      if(opts.upload)doc+=' <label class="link" style="display:inline;font-weight:600">'+(l.Doc_Name?'Replace':'Upload')+'<input type="file" hidden accept=".pdf,.png,.jpg,.jpeg" onchange="uploadLicDoc('+l.License_ID+',this)"></label>';
+      return '<tr>'+(opts.emp?'<td>'+esc(fullName(emp(l.Emp_ID)))+'</td>':'')+'<td><b>'+esc(st.State_Abbreviation)+'</b></td><td>'+esc(l.License_Num)+'</td><td>'+esc(l.License_Type)+'</td><td>'+fmtDate(l.Expiration_Date)+'</td><td><span class="badge '+s[1]+'">'+s[0]+'</span></td><td>'+progress(ceDone(l),l.CE_Required)+'</td><td>'+doc+'</td></tr>';
+    }).join('')+'</tbody></table></div>';
+}
+function pdTable(list,opts){
+  opts=opts||{};
+  if(!list.length)return '<p class="empty">No professional development activities recorded yet.</p>';
+  return '<div class="table-wrap"><table><thead><tr>'+(opts.emp?'<th>Employee</th>':'')+'<th>Course</th><th>Provider</th><th>License</th><th>Hours</th><th>Completed</th><th>Cost</th><th>Status</th><th>Proof</th></tr></thead><tbody>'+
+    list.map(function(p){
+      var l=licOf(p.License_ID),st=l?stateOf(l.State_ID).State_Abbreviation:'';
+      return '<tr>'+(opts.emp?'<td>'+esc(fullName(emp(p.Emp_Id)))+'</td>':'')+'<td>'+esc(p.course_name)+'</td><td>'+esc(p.course_provider)+'</td><td>'+esc(st)+'</td><td>'+p.CE_Hours+'</td><td>'+fmtDate(p.Completion_Date)+'</td><td>'+money(p.Activity_Cost)+'</td><td>'+statusBadge(p.Completion_Status)+'</td><td>'+(p.Proof_Name?'<span class="badge b-blue" title="'+esc(p.Proof_Name)+'">Uploaded</span>':'<span class="badge b-gray">None</span>')+'</td></tr>';
+    }).join('')+'</tbody></table></div>';
+}
+function byDateDesc(a,b){return b.Completion_Date.localeCompare(a.Completion_Date);}
+
+/* ---------- login ---------- */
+function loginView(){
+  return '<div class="login-wrap"><div class="login">'+
+  '<div class="brand"><div class="logo">F</div><b>Forth Insurance</b></div>'+
+  '<p class="muted">License &amp; Continuing Education Tracker</p>'+
+  '<form onsubmit="doLogin(event)">'+
+    '<label>Username<input id="lu" autocomplete="username" required></label><div style="height:10px"></div>'+
+    '<label>Password<input id="lp" type="password" autocomplete="current-password" required></label>'+
+    '<div class="err" id="lerr"></div>'+
+    '<button class="btn primary full">Sign in</button>'+
+  '</form>'+
+  '<div class="divider">Demo accounts (password: demo)</div>'+
+  '<div class="demo-row">'+
+    '<button onclick="demoLogin(\'broker\')"><b>Broker</b>Jordan Miller</button>'+
+    '<button onclick="demoLogin(\'marketing\')"><b>Marketing</b>Olivia Carter</button>'+
+    '<button onclick="demoLogin(\'manager\')"><b>Manager</b>Rachel Dupree</button>'+
+  '</div>'+
+  '<p class="muted" style="font-size:12px;margin:18px 0 0">Student prototype for CINS 4030 (ULM), not an official Forth Insurance site. All names and records are sample data. Do not enter real passwords or personal information.</p>'+
+  '</div></div>';
+}
+var failedLogins={};
+function doLogin(ev){
+  ev.preventDefault();
+  var u=document.getElementById('lu').value.trim().toLowerCase(),p=document.getElementById('lp').value,err=document.getElementById('lerr');
+  var acc=db.accounts.find(function(a){return a.Username.toLowerCase()===u;});
+  if(acc&&acc.Account_Status==='Locked'){err.textContent='This account is locked after 5 failed attempts. Contact your system administrator.';return;}
+  if(!acc||acc.Password!==p){
+    if(acc){failedLogins[u]=(failedLogins[u]||0)+1;if(failedLogins[u]>=5){acc.Account_Status='Locked';save();err.textContent='Too many failed attempts. The account is now locked.';return;}}
+    err.textContent='Incorrect username or password.';return;
+  }
+  failedLogins[u]=0;
+  session.user=acc.Emp_ID;
+  session.page=emp(acc.Emp_ID).Emp_Role==='Manager'?'mdash':'dashboard';
+  render();
+}
+function demoLogin(u){document.getElementById('lu').value=u;document.getElementById('lp').value='demo';doLogin({preventDefault:function(){}});}
+function logout(){session.user=null;session.page='';closeModal();render();}
+function resetDemo(){
+  openModal('Reset demo data','<p>This puts all sample licenses, activities and messages back to their starting state and signs you out.</p><div class="actions" style="justify-content:flex-end"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="doReset()">Reset data</button></div>');
+}
+function doReset(){db=seed();save();closeModal();logout();toast('Demo data reset.');}
+function go(p){session.page=p;var a=document.querySelector('aside');if(a)a.classList.remove('open');render();window.scrollTo(0,0);}
+
+/* ---------- shell ---------- */
+function render(){
+  var app=document.getElementById('app');
+  if(!session.user){app.innerHTML=loginView();return;}
+  var u=emp(session.user),mgr=u.Emp_Role==='Manager';
+  var pendingCount=db.pd.filter(function(p){return p.Completion_Status==='Pending Approval';}).length;
+  var alertCount=(mgr?managerAlerts():alertsFor(u)).filter(function(a){return a.lvl==='red';}).length+unreadCount(u.Emp_ID);
+  var nav=mgr?[['mdash','Management Dashboard'],['employees','Employees'],['approvals','Approvals',pendingCount],['reports','Reports'],['alerts','Alerts & Messages',alertCount]]
+             :[['dashboard','Dashboard'],['licenses','My Licenses'],['pd','Professional Development'],['alerts','Alerts & Messages',alertCount]];
+  var page={dashboard:staffDashboard,licenses:licensesPage,pd:pdPage,alerts:alertsPage,mdash:managerDashboard,employees:employeesPage,approvals:approvalsPage,reports:reportsPage}[session.page]||staffDashboard;
+  app.innerHTML='<div class="shell"><aside id="side"><div class="brand"><div class="logo">F</div><b>Forth Insurance<span>License &amp; CE Tracker</span></b></div><nav>'+
+    nav.map(function(n){return '<button class="'+(session.page===n[0]?'on':'')+'" onclick="go(\''+n[0]+'\')"><span>'+n[1]+'</span>'+(n[2]?'<span class="count">'+n[2]+'</span>':'')+'</button>';}).join('')+
+    '</nav><div class="side-foot">Student prototype · sample data<br><button onclick="resetDemo()">Reset demo data</button></div></aside>'+
+    '<main><div class="top"><button class="btn sm menu-btn" onclick="document.getElementById(\'side\').classList.toggle(\'open\')">☰ Menu</button><div class="who"><div class="avatar">'+initials(u)+'</div><div><b>'+esc(fullName(u))+'</b><br><small>'+esc(u.Emp_Role==='Marketing'?'Marketing Personnel':u.Emp_Role)+'</small></div></div><button class="btn sm" onclick="logout()">Log out</button></div>'+
+    '<div class="content">'+page(u)+'</div></main></div>';
+  if(session.page==='employees')updateEmpTable();
+  if(session.page==='reports')runReport();
+}
+
+/* ---------- broker / marketing pages ---------- */
+function staffDashboard(u){
+  var lic=licensesOf(u.Emp_ID);
+  var active=lic.filter(function(l){return daysUntil(l.Expiration_Date)>=0;}).length;
+  var done=empDone(u.Emp_ID),rem=empRemaining(u.Emp_ID),b=budgetOf(u.Emp_ID);
+  var recent=pdOf(u.Emp_ID).slice().sort(byDateDesc).slice(0,4);
+  return '<div class="page-head"><div><h1>Welcome back, '+esc(u.First_Name)+'</h1><p class="muted" style="margin:0">Your licenses, continuing education and budget at a glance.</p></div>'+
+    '<div class="actions"><button class="btn" onclick="openLicenseForm()">+ Add License</button><button class="btn primary" onclick="go(\'pd\')">+ Log CE Activity</button></div></div>'+
+    '<div class="stats">'+
+      stat('Active licenses',active,lic.length+' on file')+
+      stat('CE hours completed',done,'across all licenses','ok')+
+      stat('CE hours remaining',rem,rem>0?'needed to stay licensed':'all requirements met',rem>0?'warn':'ok')+
+      (b?stat('PD budget remaining',money(b.remaining),money(b.spent)+' of '+money(b.allocated)+' used',b.remaining<400?'warn':'')
+        :stat('PD budget','N/A','The $2,000 budget is for brokers only'))+
+    '</div>'+
+    '<div class="grid2"><section class="card"><div class="card-head"><h2>My licenses</h2><button class="link" onclick="go(\'licenses\')">Manage →</button></div>'+licenseTable(lic)+'</section>'+
+    '<section class="card"><div class="card-head"><h2>Alerts</h2><button class="link" onclick="go(\'alerts\')">View all →</button></div>'+alertList(alertsFor(u).slice(0,5))+'</section></div>'+
+    '<section class="card"><div class="card-head"><h2>Recent professional development</h2><button class="link" onclick="go(\'pd\')">View all →</button></div>'+pdTable(recent)+'</section>';
+}
+
+function licensesPage(u){
+  return '<div class="page-head"><div><h1>My Licenses</h1><p class="muted" style="margin:0">You must hold a valid license in the state where each client lives.</p></div><div class="actions"><button class="btn primary" onclick="openLicenseForm()">+ Add License</button></div></div>'+
+    '<section class="card">'+licenseTable(licensesOf(u.Emp_ID),{upload:true})+'</section>'+
+    '<div class="note">CE requirements in this prototype use a sample value of '+DEFAULT_CE+' hours per renewal cycle. In the real system, each state\'s requirement would come from that state\'s Department of Insurance.</div>';
+}
+function openLicenseForm(){
+  var opts=db.states.map(function(s){return '<option value="'+s.State_ID+'">'+esc(s.State_Name)+' ('+s.State_Abbreviation+')</option>';}).join('');
+  openModal('Add a license','<form class="form" onsubmit="submitLicense(event)">'+
+    '<label>State<select name="State_ID" required><option value="">Select a state…</option>'+opts+'</select></label>'+
+    '<label>License number<input name="License_Num" required placeholder="e.g. TX-2290147"></label>'+
+    '<label>License type<select name="License_Type" required>'+LICENSE_TYPES.map(function(t){return '<option>'+esc(t)+'</option>';}).join('')+'</select></label>'+
+    '<label>CE hours required<input type="number" name="CE_Required" min="0" value="'+DEFAULT_CE+'" required><span class="help">Per renewal cycle (sample value)</span></label>'+
+    '<label>Issue date<input type="date" name="Issue_Date" required max="'+todayIso()+'"></label>'+
+    '<label>Expiration date<input type="date" name="Expiration_Date" required></label>'+
+    '<label class="full">Copy of license<input type="file" name="doc" accept=".pdf,.png,.jpg,.jpeg"><span class="help">PDF, PNG or JPG, up to 10 MB</span></label>'+
+    '<div class="form-msg bad" id="licmsg"></div>'+
+    '<div class="full actions" style="justify-content:flex-end"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button class="btn primary">Save license</button></div></form>');
+}
+function checkFile(f){
+  if(!f)return '';
+  if(!/\.(pdf|png|jpe?g)$/i.test(f.name))return 'Only PDF, PNG or JPG files can be uploaded.';
+  if(f.size>10*1024*1024)return 'Files must be 10 MB or smaller.';
+  return '';
+}
+function submitLicense(ev){
+  ev.preventDefault();
+  var f=ev.target,msg=document.getElementById('licmsg');
+  var stId=Number(f.elements.State_ID.value),num=f.elements.License_Num.value.trim(),iss=f.elements.Issue_Date.value,exp=f.elements.Expiration_Date.value,file=f.elements.doc.files[0];
+  if(exp<=iss){msg.textContent='The expiration date must be after the issue date.';return;}
+  if(exp<todayIso()){msg.textContent='This license has already expired. Enter a current license, or renew it with the state first.';return;}
+  if(db.licenses.some(function(l){return l.State_ID===stId&&l.License_Num.toLowerCase()===num.toLowerCase();})){msg.textContent='That license number is already on file for this state.';return;}
+  var fe=checkFile(file);if(fe){msg.textContent=fe;return;}
+  db.licenses.push({License_ID:nid(db.licenses,'License_ID'),Emp_ID:session.user,State_ID:stId,License_Num:num,License_Type:f.elements.License_Type.value,Issue_Date:iss,Expiration_Date:exp,CE_Required:Number(f.elements.CE_Required.value),Doc_Name:file?file.name:''});
+  save();closeModal();render();toast('License saved.');
+}
+function uploadLicDoc(id,input){
+  var file=input.files[0],fe=checkFile(file);
+  if(fe){toast(fe);return;}
+  var l=licOf(id);l.Doc_Name=file.name;save();render();toast('License copy uploaded.');
+}
+
+function pdPage(u){
+  var lic=licensesOf(u.Emp_ID),b=budgetOf(u.Emp_ID);
+  var form=lic.length?'<form class="form" onsubmit="submitPD(event)" id="pdform">'+
+    '<label class="full">Course name<input name="course_name" required placeholder="e.g. Flood Insurance & the NFIP"></label>'+
+    '<label>Provider<input name="course_provider" required></label>'+
+    '<label>Counts toward license<select name="License_ID" required>'+lic.map(function(l){return '<option value="'+l.License_ID+'">'+esc(stateOf(l.State_ID).State_Abbreviation)+' · '+esc(l.License_Type)+' ('+ceRemaining(l)+' hrs still needed)</option>';}).join('')+'</select></label>'+
+    '<label>CE hours earned<input type="number" name="CE_Hours" min="0.5" max="40" step="0.5" required></label>'+
+    '<label>Completion date<input type="date" name="Completion_Date" required max="'+todayIso()+'"></label>'+
+    '<label>Cost ($)<input type="number" name="Activity_Cost" min="0" step="0.01" value="0" required>'+(b?'':'<span class="help">Not charged to a PD budget for marketing staff</span>')+'</label>'+
+    '<label>Proof of completion<input type="file" name="proof" accept=".pdf,.png,.jpg,.jpeg"></label>'+
+    '<div class="form-msg bad" id="pdmsg"></div>'+
+    '<div class="full"><button class="btn primary">Save activity</button></div></form>'
+    :'<p class="empty">Add a license first so your CE hours have something to count toward.</p><button class="btn primary" onclick="openLicenseForm()">+ Add License</button>';
+  var budgetCard=b?'<section class="card"><h2>Professional development budget</h2>'+
+      '<div class="bars"><div class="row"><span>Used</span><div class="bar"><span class="'+(b.spent>ALLOCATION?'over':b.spent>=ALLOCATION*.8?'hi':'')+'" style="width:'+pct(b.spent,ALLOCATION)+'%"></span></div><b>'+pct(b.spent,ALLOCATION)+'%</b></div></div>'+
+      '<table><tbody><tr><td>Allocated</td><td style="text-align:right"><b>'+money(b.allocated)+'</b></td></tr><tr><td>Spent</td><td style="text-align:right">'+money(b.spent)+'</td></tr><tr><td>Available</td><td style="text-align:right"><b>'+money(b.remaining)+'</b></td></tr>'+(b.pending?'<tr><td>Waiting for approval</td><td style="text-align:right">'+money(b.pending)+'</td></tr>':'')+(b.over?'<tr><td>Approved over allowance</td><td style="text-align:right;color:var(--red)">'+money(b.over)+'</td></tr>':'')+'</tbody></table>'+
+      '<p class="help" style="margin:10px 0 0">Courses that cost more than your available balance are sent to your manager for approval instead of being rejected.</p></section>'
+    :'<section class="card"><h2>Professional development budget</h2><p class="muted" style="margin:0">Not applicable. The $2,000 allocation is reserved for brokers.</p></section>';
+  return '<div class="page-head"><div><h1>Professional Development</h1><p class="muted" style="margin:0">Record continuing education so your hours and budget stay current.</p></div></div>'+
+    '<div class="grid2"><section class="card"><h2>Log a CE activity</h2>'+form+'</section>'+budgetCard+'</div>'+
+    '<section class="card"><h2>My activities</h2>'+pdTable(pdOf(u.Emp_ID).slice().sort(byDateDesc))+'</section>';
+}
+function submitPD(ev){
+  ev.preventDefault();
+  var f=ev.target,msg=document.getElementById('pdmsg'),u=emp(session.user);
+  var name=f.elements.course_name.value.trim(),date=f.elements.Completion_Date.value,hrs=Number(f.elements.CE_Hours.value),cost=Number(f.elements.Activity_Cost.value),file=f.elements.proof.files[0];
+  if(hrs<=0){msg.textContent='CE hours must be greater than zero.';return;}
+  if(date>todayIso()){msg.textContent='The completion date cannot be in the future.';return;}
+  if(db.pd.some(function(p){return p.Emp_Id===u.Emp_ID&&p.course_name.toLowerCase()===name.toLowerCase()&&p.Completion_Date===date;})){msg.textContent='This course is already recorded for that date. Duplicate submissions are not allowed.';return;}
+  var fe=checkFile(file);if(fe){msg.textContent=fe;return;}
+  var b=budgetOf(u.Emp_ID),status='Completed';
+  if(b&&cost>b.remaining)status='Pending Approval';
+  var rec={Activity_Id:nid(db.pd,'Activity_Id'),Emp_Id:u.Emp_ID,License_ID:Number(f.elements.License_ID.value),course_name:name,course_provider:f.elements.course_provider.value.trim(),CE_Hours:hrs,Completion_Date:date,Completion_Status:status,Activity_Cost:b?cost:0,Proof_Name:file?file.name:''};
+  db.pd.push(rec);
+  if(status==='Pending Approval'){
+    var m=manager();
+    db.messages.push({Msg_ID:nid(db.messages,'Msg_ID'),Emp_ID:m.Emp_ID,Date:todayIso(),From:'Forth Tracker',Subject:'Budget approval needed: '+fullName(u),Body:fullName(u)+' submitted "'+name+'" ('+money(cost)+'), which is more than their remaining professional development budget ('+money(b.remaining)+'). Review it under Approvals.',Read:false});
+  }
+  save();render();
+  toast(status==='Completed'?'Activity saved. Your CE hours'+(b?' and budget':'')+' were updated.':'This costs more than your available budget, so it was sent to your manager for approval.');
+}
+
+function messagesFor(id){return db.messages.filter(function(m){return m.Emp_ID===id;}).sort(function(a,b){return b.Msg_ID-a.Msg_ID;});}
+function alertsPage(u){
+  var mgr=u.Emp_Role==='Manager';
+  var msgs=messagesFor(u.Emp_ID);
+  var html='<div class="page-head"><div><h1>Alerts &amp; Messages</h1><p class="muted" style="margin:0">'+(mgr?'Company-wide issues that need attention, and messages sent to you.':'System alerts about your licenses, plus individual reminders sent to you.')+'</p></div></div>'+
+    '<div class="grid2"><section class="card"><h2>'+(mgr?'Company alerts':'System alerts')+'</h2>'+(mgr?alertList(managerAlerts(),true):alertList(alertsFor(u)))+'</section>'+
+    '<section class="card"><h2>Messages</h2>'+(msgs.length?msgs.map(function(m){return '<div class="msg'+(m.Read?'':' unread')+'"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+esc(m.Subject)+'</b><small class="muted">'+fmtDate(m.Date)+'</small></div><small class="muted">From: '+esc(m.From)+'</small><pre>'+esc(m.Body)+'</pre></div>';}).join(''):'<p class="empty">No messages yet.</p>')+'</section></div>';
+  msgs.forEach(function(m){m.Read=true;});save();
+  return html;
+}
+
+/* ---------- manager pages ---------- */
+function managerDashboard(u){
+  var st=staff(),brokers=st.filter(isBroker);
+  var licensed=st.filter(function(e){return licensesOf(e.Emp_ID).length>0;}).length;
+  var soon=db.licenses.filter(function(l){return daysUntil(l.Expiration_Date)<=60;}).sort(function(a,b){return a.Expiration_Date.localeCompare(b.Expiration_Date);});
+  var outstanding=st.filter(function(e){return empRemaining(e.Emp_ID)>0;});
+  var totalRem=st.reduce(function(s,e){return s+empRemaining(e.Emp_ID);},0);
+  var spent=brokers.reduce(function(s,e){return s+budgetOf(e.Emp_ID).spent;},0),alloc=brokers.length*ALLOCATION;
+  var pend=db.pd.filter(function(p){return p.Completion_Status==='Pending Approval';});
+  return '<div class="page-head"><div><h1>Management Dashboard</h1><p class="muted" style="margin:0">Company-wide view of licensing, continuing education and professional development spending.</p></div>'+
+    '<div class="actions"><button class="btn" onclick="go(\'reports\')">Generate report</button><button class="btn primary" onclick="sendReminders()">Send CE reminders</button></div></div>'+
+    '<div class="stats">'+
+      stat('Licensed staff',licensed,st.length+' brokers & marketing staff')+
+      stat('Total licenses',db.licenses.length,'across '+new Set(db.licenses.map(function(l){return l.State_ID;})).size+' states')+
+      stat('Expired or expiring ≤60 days',soon.length,'need renewal attention',soon.length?'bad':'ok')+
+      stat('Staff with CE outstanding',outstanding.length,totalRem+' total hours remaining',outstanding.length?'warn':'ok')+
+      stat('PD spending',money(spent),'of '+money(alloc)+' allocated to '+brokers.length+' brokers')+
+    '</div>'+
+    (pend.length?'<div class="note no-print"><b>'+pend.length+' over-budget request'+(pend.length>1?'s':'')+'</b> waiting for your approval. <button class="link" onclick="go(\'approvals\')">Review now →</button></div>':'')+
+    '<div class="grid2"><section class="card"><h2>Expired &amp; expiring licenses</h2>'+(soon.length?'<div class="table-wrap"><table><thead><tr><th>Employee</th><th>State</th><th>License #</th><th>Expires</th><th>Status</th><th>CE left</th></tr></thead><tbody>'+
+      soon.map(function(l){var s=licStatus(l);return '<tr><td>'+esc(fullName(emp(l.Emp_ID)))+'</td><td>'+stateOf(l.State_ID).State_Abbreviation+'</td><td>'+esc(l.License_Num)+'</td><td>'+fmtDate(l.Expiration_Date)+'</td><td><span class="badge '+s[1]+'">'+s[0]+'</span></td><td>'+ceRemaining(l)+' hrs</td></tr>';}).join('')+'</tbody></table></div>':'<p class="empty">No licenses expire in the next 60 days.</p>')+'</section>'+
+    '<section class="card"><h2>Budget used by broker</h2><div class="bars">'+brokers.map(function(e){var b=budgetOf(e.Emp_ID),p=pct(b.spent,ALLOCATION);return '<div class="row"><span>'+esc(fullName(e))+'</span><div class="bar"><span class="'+(b.spent>ALLOCATION?'over':p>=80?'hi':'')+'" style="width:'+p+'%"></span></div><small>'+money(b.spent)+'</small></div>';}).join('')+'</div></section></div>'+
+    '<section class="card"><div class="card-head"><h2>Continuing education outstanding</h2><button class="btn sm" onclick="sendReminders()">Send individual reminders</button></div>'+(outstanding.length?'<div class="table-wrap"><table><thead><tr><th>Employee</th><th>Role</th><th>Licenses</th><th>Hours completed</th><th>Hours remaining</th><th>Nearest deadline</th></tr></thead><tbody>'+
+      outstanding.map(function(e){var ls=licensesOf(e.Emp_ID).filter(function(l){return ceRemaining(l)>0;}).sort(function(a,b){return a.Expiration_Date.localeCompare(b.Expiration_Date);});
+        return '<tr><td>'+esc(fullName(e))+'</td><td>'+esc(e.Emp_Role)+'</td><td><div class="chips">'+licensesOf(e.Emp_ID).map(function(l){return '<span class="badge b-blue">'+stateOf(l.State_ID).State_Abbreviation+'</span>';}).join('')+'</div></td><td>'+empDone(e.Emp_ID)+'</td><td><b>'+empRemaining(e.Emp_ID)+'</b></td><td>'+(ls[0]?fmtDate(ls[0].Expiration_Date):'')+'</td></tr>';}).join('')+'</tbody></table></div>':'<p class="empty">Everyone has met their CE requirements.</p>')+'</section>';
+}
+function sendReminders(){
+  var sent=0,t=todayIso();
+  staff().forEach(function(e){
+    var ls=licensesOf(e.Emp_ID).filter(function(l){return ceRemaining(l)>0;});
+    if(!ls.length)return;
+    db.messages=db.messages.filter(function(m){return !(m.Emp_ID===e.Emp_ID&&m.Date===t&&m.Subject==='Continuing education reminder');});
+    var lines=ls.map(function(l){var st=stateOf(l.State_ID);return '• '+st.State_Name+' '+l.License_Type+' license #'+l.License_Num+': '+ceRemaining(l)+' of '+l.CE_Required+' hours still needed, due by '+fmtDate(l.Expiration_Date)+'.';});
+    var b=budgetOf(e.Emp_ID);
+    var body='Hi '+e.First_Name+',\n\nTo keep your licenses active, you still need the following continuing education hours:\n'+lines.join('\n')+(b?'\n\nYou have '+money(b.remaining)+' left in your $2,000 professional development budget.':'')+'\n\nLog completed courses under Professional Development.\n\n— Forth Insurance Compliance';
+    db.messages.push({Msg_ID:nid(db.messages,'Msg_ID'),Emp_ID:e.Emp_ID,Date:t,From:'Forth Insurance Compliance',Subject:'Continuing education reminder',Body:body,Read:false});
+    sent++;
+  });
+  save();render();
+  toast(sent?'Sent '+sent+' individual reminder'+(sent>1?'s':'')+'. Each employee sees theirs under Alerts & Messages.':'No one has outstanding CE hours.');
+}
+
+function employeesPage(){
+  return '<div class="page-head"><div><h1>Employees</h1><p class="muted" style="margin:0">Search and filter broker and marketing records.</p></div></div>'+
+    '<section class="card"><div class="filters"><input id="fq" placeholder="Search by name or email" oninput="updateEmpTable()">'+
+    '<select id="frole" onchange="updateEmpTable()"><option value="">All roles</option><option>Broker</option><option>Marketing</option></select>'+
+    '<select id="fstate" onchange="updateEmpTable()"><option value="">All states</option>'+db.states.map(function(s){return '<option value="'+s.State_ID+'">'+s.State_Name+'</option>';}).join('')+'</select>'+
+    '<select id="fstatus" onchange="updateEmpTable()"><option value="">Any status</option><option value="out">CE outstanding</option><option value="exp">Expired / expiring license</option><option value="ok">Fully compliant</option></select></div><div id="emptable"></div></section>';
+}
+function filterStaff(q,role,state,status){
+  return staff().filter(function(e){
+    if(q&&(fullName(e)+' '+e.Email).toLowerCase().indexOf(q.toLowerCase())<0)return false;
+    if(role&&e.Emp_Role!==role)return false;
+    var ls=licensesOf(e.Emp_ID);
+    if(state&&!ls.some(function(l){return l.State_ID===Number(state);}))return false;
+    var exp=ls.some(function(l){return daysUntil(l.Expiration_Date)<=60;}),out=empRemaining(e.Emp_ID)>0;
+    if(status==='out'&&!out)return false;
+    if(status==='exp'&&!exp)return false;
+    if(status==='ok'&&(out||exp))return false;
+    return true;
+  });
+}
+function updateEmpTable(){
+  var el=document.getElementById('emptable');if(!el)return;
+  var list=filterStaff(document.getElementById('fq').value,document.getElementById('frole').value,document.getElementById('fstate').value,document.getElementById('fstatus').value);
+  el.innerHTML=list.length?'<div class="table-wrap"><table><thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Licenses</th><th>CE remaining</th><th>Budget used</th><th></th></tr></thead><tbody>'+
+    list.map(function(e){var b=budgetOf(e.Emp_ID);return '<tr><td><b>'+esc(fullName(e))+'</b></td><td>'+esc(e.Emp_Role)+'</td><td>'+esc(e.Email)+'</td><td><div class="chips">'+licensesOf(e.Emp_ID).map(function(l){var s=licStatus(l);return '<span class="badge '+s[1]+'">'+stateOf(l.State_ID).State_Abbreviation+'</span>';}).join('')+'</div></td><td>'+empRemaining(e.Emp_ID)+' hrs</td><td>'+(b?money(b.spent)+' / '+money(ALLOCATION):'N/A')+'</td><td><button class="btn sm" onclick="viewEmployee('+e.Emp_ID+')">View</button></td></tr>';}).join('')+'</tbody></table></div>'
+    :'<p class="empty">No employees match these filters.</p>';
+}
+function viewEmployee(id){
+  var e=emp(id),b=budgetOf(id);
+  openModal(fullName(e)+' · '+e.Emp_Role,
+    '<p class="muted" style="margin-top:-6px">'+esc(e.Email)+' · '+esc(e.Phone_Num)+'</p>'+
+    '<div class="stats">'+stat('CE completed',empDone(id),'hours')+stat('CE remaining',empRemaining(id),'hours',empRemaining(id)?'warn':'ok')+(b?stat('Budget available',money(b.remaining),money(b.spent)+' spent'):stat('Budget','N/A','Brokers only'))+'</div>'+
+    '<h2>Licenses</h2>'+licenseTable(licensesOf(id))+'<h2 style="margin-top:18px">Professional development</h2>'+pdTable(pdOf(id).slice().sort(byDateDesc)));
+}
+
+function approvalsPage(){
+  var pend=db.pd.filter(function(p){return p.Completion_Status==='Pending Approval';});
+  var decided=db.pd.filter(function(p){return p.Decision;});
+  return '<div class="page-head"><div><h1>Approvals</h1><p class="muted" style="margin:0">Courses that cost more than a broker\'s remaining budget need manager approval.</p></div></div>'+
+    '<section class="card"><h2>Waiting for review</h2>'+(pend.length?'<div class="table-wrap"><table><thead><tr><th>Broker</th><th>Course</th><th>Hours</th><th>Cost</th><th>Available budget</th><th>Over by</th><th></th></tr></thead><tbody>'+
+      pend.map(function(p){var b=budgetOf(p.Emp_Id);return '<tr><td>'+esc(fullName(emp(p.Emp_Id)))+'</td><td>'+esc(p.course_name)+'<br><small class="muted">'+esc(p.course_provider)+'</small></td><td>'+p.CE_Hours+'</td><td>'+money(p.Activity_Cost)+'</td><td>'+money(b.remaining)+'</td><td style="color:var(--red)">'+money(p.Activity_Cost-b.remaining)+'</td><td style="white-space:nowrap"><button class="btn sm primary" onclick="decide('+p.Activity_Id+',true)">Approve</button> <button class="btn sm danger" onclick="decide('+p.Activity_Id+',false)">Deny</button></td></tr>';}).join('')+'</tbody></table></div>':'<p class="empty">Nothing waiting for review.</p>')+'</section>'+
+    '<section class="card"><h2>Decision history</h2>'+(decided.length?'<div class="table-wrap"><table><thead><tr><th>Broker</th><th>Course</th><th>Cost</th><th>Decision</th><th>Date</th></tr></thead><tbody>'+
+      decided.map(function(p){return '<tr><td>'+esc(fullName(emp(p.Emp_Id)))+'</td><td>'+esc(p.course_name)+'</td><td>'+money(p.Activity_Cost)+'</td><td>'+statusBadge(p.Decision)+'</td><td>'+fmtDate(p.Decision_Date)+'</td></tr>';}).join('')+'</tbody></table></div>':'<p class="empty">No decisions yet.</p>')+'</section>';
+}
+function decide(id,ok){
+  var p=db.pd.find(function(x){return x.Activity_Id===id;}),e=emp(p.Emp_Id);
+  p.Completion_Status=ok?'Completed':'Denied';p.Decision=ok?'Approved':'Denied';p.Decision_Date=todayIso();
+  db.messages.push({Msg_ID:nid(db.messages,'Msg_ID'),Emp_ID:e.Emp_ID,Date:todayIso(),From:fullName(manager())+' (Manager)',Subject:'Professional development request '+(ok?'approved':'denied'),
+    Body:'Your request for "'+p.course_name+'" ('+money(p.Activity_Cost)+') was '+(ok?'approved. The hours now count toward your license, and the amount over your $2,000 allowance is tracked separately.':'denied. Contact your manager if you have questions.'),Read:false});
+  save();render();toast('Request '+(ok?'approved':'denied')+'. '+e.First_Name+' was notified.');
+}
+
+/* ---------- reports ---------- */
+var REPORTS={
+  staff:'All brokers & staff',licenses:'All licenses',pd:'Professional development activity',budget:'Professional development budget',compliance:'CE compliance by license'};
+function reportsPage(){
+  return '<div class="page-head"><div><h1>Reports</h1><p class="muted" style="margin:0">Generate management reports on staff, licenses, professional development and budgets.</p></div></div>'+
+    '<section class="card no-print"><div class="filters" style="margin:0">'+
+      '<select id="rtype" onchange="runReport()">'+Object.keys(REPORTS).map(function(k){return '<option value="'+k+'">'+REPORTS[k]+'</option>';}).join('')+'</select>'+
+      '<select id="rstate" onchange="runReport()"><option value="">All states</option>'+db.states.map(function(s){return '<option value="'+s.State_ID+'">'+s.State_Name+'</option>';}).join('')+'</select>'+
+      '<select id="rrole" onchange="runReport()"><option value="">All roles</option><option>Broker</option><option>Marketing</option></select>'+
+      '<button class="btn" onclick="downloadCSV()">Download CSV</button><button class="btn" onclick="showCSV()">Copy CSV</button><button class="btn" onclick="printReport()">Print</button>'+
+    '</div></section><section class="card" id="reportOut"></section>';
+}
+function runReport(){
+  var type=document.getElementById('rtype').value,state=Number(document.getElementById('rstate').value)||0,role=document.getElementById('rrole').value;
+  var people=staff().filter(function(e){return !role||e.Emp_Role===role;});
+  var ids=people.map(function(e){return e.Emp_ID;});
+  var lics=db.licenses.filter(function(l){return ids.indexOf(l.Emp_ID)>=0&&(!state||l.State_ID===state);});
+  if(state)people=people.filter(function(e){return lics.some(function(l){return l.Emp_ID===e.Emp_ID;});});
+  var h=[],rows=[];
+  if(type==='staff'){
+    h=['Name','Role','Email','Licenses','States','CE completed','CE remaining','Budget spent','Budget available'];
+    rows=people.map(function(e){var ls=licensesOf(e.Emp_ID),b=budgetOf(e.Emp_ID);return [fullName(e),e.Emp_Role,e.Email,ls.length,ls.map(function(l){return stateOf(l.State_ID).State_Abbreviation;}).join(', '),empDone(e.Emp_ID),empRemaining(e.Emp_ID),b?money(b.spent):'N/A',b?money(b.remaining):'N/A'];});
+  }else if(type==='licenses'){
+    h=['Employee','Role','State','License #','Type','Issued','Expires','Status','CE done','CE required','Copy on file'];
+    rows=lics.map(function(l){var e=emp(l.Emp_ID);return [fullName(e),e.Emp_Role,stateOf(l.State_ID).State_Abbreviation,l.License_Num,l.License_Type,fmtDate(l.Issue_Date),fmtDate(l.Expiration_Date),licStatus(l)[0],ceDone(l),l.CE_Required,l.Doc_Name?'Yes':'No'];});
+  }else if(type==='pd'){
+    h=['Employee','Course','Provider','License','Hours','Completed','Cost','Status','Proof'];
+    var licIds=lics.map(function(l){return l.License_ID;});
+    rows=db.pd.filter(function(p){return licIds.indexOf(p.License_ID)>=0;}).sort(byDateDesc).map(function(p){var l=licOf(p.License_ID);return [fullName(emp(p.Emp_Id)),p.course_name,p.course_provider,stateOf(l.State_ID).State_Abbreviation,p.CE_Hours,fmtDate(p.Completion_Date),money(p.Activity_Cost),p.Completion_Status,p.Proof_Name?'Yes':'No'];});
+  }else if(type==='budget'){
+    h=['Broker','Allocated','Spent','Available','Over allowance','Pending approval'];
+    rows=people.filter(isBroker).map(function(e){var b=budgetOf(e.Emp_ID);return [fullName(e),money(b.allocated),money(b.spent),money(b.remaining),money(b.over),money(b.pending)];});
+    var tot=people.filter(isBroker).reduce(function(t,e){var b=budgetOf(e.Emp_ID);t[0]+=b.allocated;t[1]+=b.spent;t[2]+=b.remaining;t[3]+=b.over;t[4]+=b.pending;return t;},[0,0,0,0,0]);
+    if(rows.length)rows.push(['TOTAL'].concat(tot.map(money)));
+  }else{
+    h=['Employee','State','License #','Expires','Days left','CE remaining','Compliance'];
+    rows=lics.slice().sort(function(a,b){return a.Expiration_Date.localeCompare(b.Expiration_Date);}).map(function(l){var d=daysUntil(l.Expiration_Date),r=ceRemaining(l);var c=d<0?'Non-compliant':(r>0&&d<=60)?'At risk':r>0?'In progress':'Compliant';return [fullName(emp(l.Emp_ID)),stateOf(l.State_ID).State_Abbreviation,l.License_Num,fmtDate(l.Expiration_Date),d,r,c];});
+  }
+  reportData={title:REPORTS[type],headers:h,rows:rows};
+  var filt=[state?stateOf(state).State_Name:'All states',role||'All roles'].join(' · ');
+  document.getElementById('reportOut').innerHTML='<div class="card-head"><div><h2>'+esc(REPORTS[type])+'</h2><small class="muted">'+esc(filt)+' · Generated '+fmtDate(todayIso())+' · '+(type==='budget'&&rows.length?rows.length-1:rows.length)+' records</small></div></div>'+
+    (rows.length?'<div class="table-wrap"><table><thead><tr>'+h.map(function(x){return '<th>'+esc(x)+'</th>';}).join('')+'</tr></thead><tbody>'+rows.map(function(r){return '<tr>'+r.map(function(c){return '<td>'+esc(c)+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>':'<p class="empty">No records match these filters.</p>');
+}
+function toCSV(){
+  if(!reportData)return '';
+  function q(v){v=String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+  return [reportData.headers].concat(reportData.rows).map(function(r){return r.map(q).join(',');}).join('\n');
+}
+function downloadCSV(){
+  try{
+    var blob=new Blob([toCSV()],{type:'text/csv'}),a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download=reportData.title.replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.csv';
+    document.body.appendChild(a);a.click();a.remove();
+    toast('Download started. If nothing downloads, use Copy CSV instead.');
+  }catch(e){showCSV();}
+}
+function showCSV(){
+  openModal('Copy report as CSV','<p class="muted" style="margin-top:-6px">Paste this into Excel or Google Sheets.</p><textarea class="csv" id="csvbox" readonly>'+esc(toCSV())+'</textarea><div class="actions" style="justify-content:flex-end;margin-top:10px"><button class="btn primary" onclick="copyCSV()">Copy to clipboard</button></div>');
+}
+function copyCSV(){
+  var box=document.getElementById('csvbox');
+  try{navigator.clipboard.writeText(box.value).then(function(){toast('Copied.');},function(){box.select();toast('Press Ctrl+C (or Cmd+C) to copy.');});}
+  catch(e){box.select();toast('Press Ctrl+C (or Cmd+C) to copy.');}
+}
+function printReport(){try{window.print();}catch(e){toast('Printing is blocked here. Open the published site to print.');}}
+
+render();
+</script>
+</body>
+</html>
